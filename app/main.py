@@ -44,6 +44,48 @@ def main():
             header = f"blob {len(content)}\0".encode()
             sha = hashlib.sha1(header + content).hexdigest()
             print(sha)
+
+    elif command =='ls-tree':
+        if sys.argv[2] == '--name-only':
+            tree_sha = sys.argv[3]
+            ## tree blob data
+            with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
+                raw = zlib.decompress(f.read())
+                header, content = raw.split(b"\0", maxsplit=1)
+                content = content.decode("utf-8")
+                ## print file names
+                for line in content.splitlines():
+                    inter, sha = line.split("\0")
+                    mode, name = inter.split(" ")
+                    
+                    print(name) 
+        else:
+            tree_sha = sys.argv[2]
+            with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
+                raw = zlib.decompress(f.read())
+                header, content = raw.split(b"\0", maxsplit=1)
+                content = content.decode("utf-8")
+                ## print file names
+                for line in content.splitlines():
+                    inter, sha = line.split("\0")
+                    mode, name = inter.split(" ")
+                    type_ = "blob"
+                    if mode == "40000":
+                        type_ = "tree"
+                    elif mode in ["100755", "100644", "120000"]:
+                        type_ = "blob"
+                    print(mode + " " + type_ + " " + sha + " " + name)
+
+        with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
+            raw = zlib.decompress(f.read())
+            header, content = raw.split(b"\0", maxsplit=1)
+            print(content.decode("utf-8"), end="")
+
+
+
+
+
+
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
