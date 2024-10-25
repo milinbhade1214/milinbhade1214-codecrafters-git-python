@@ -93,10 +93,13 @@ def main():
         # get all files and folders in the current directory
         files = os.listdir()
         tree_content = b""
-        print(files)
         
-        
-        pass
+        # print files and types
+        for file in files:
+            if os.path.isdir(file):
+                print(file, "is a directory")
+            else:
+                print(file, "is a file")
 
     else:
         raise RuntimeError(f"Unknown command #{command}")
