@@ -143,7 +143,7 @@ def main():
         print(write_tree("./"))
 
     elif command == "commit-tree":
-        print("Calling commit tree")
+        # print("Calling commit tree")
         tree_sha = sys.argv[2]
         if sys.argv[3] == "-p":
             commit_sha = sys.argv[4]
