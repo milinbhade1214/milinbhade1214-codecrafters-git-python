@@ -33,7 +33,7 @@ def print_tree_content(content, options=""):
             type_ = "tree"
         elif mode in ["100755", "100644", "120000"]:
             type_ = "blob"
-        if options == "name-only:
+        if options == "name-only":
             print(f"{name}")
         else:
             print(f"{mode} {type_} {sha} {name}")
