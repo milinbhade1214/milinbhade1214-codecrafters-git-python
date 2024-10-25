@@ -130,6 +130,9 @@ def main():
     elif command == "write-tree":
         print(write_tree("./"))
 
+    elif command == "commit-tree":
+        pass
+
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
