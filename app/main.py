@@ -4,6 +4,37 @@ import zlib
 import hashlib
 
 
+def compute_sha(file_name):
+    content = open(file_name, "rb").read()
+    header = f"blob {len(content)}\0".encode()
+    sha = hashlib.sha1(header + content).hexdigest()
+    return sha
+
+def read_tree(tree_sha):
+    with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
+        raw = zlib.decompress(f.read())
+        header, content = raw.split(b"\0", maxsplit=1)
+        return content
+
+def print_tree_content(content):
+    index = 0
+    while index < len(content):
+        mode_end = content.find(b' ', index)
+        mode = content[index:mode_end].decode('utf-8')
+        index = mode_end + 1
+
+        sha_start = content.find(b'\0', index)
+        name = content[index:sha_start].decode('utf-8', errors='ignore')
+        sha = content[sha_start + 1:sha_start + 21].hex()
+        index = sha_start + 21
+
+        type_ = "blob"
+        if mode == "40000":
+            type_ = "tree"
+        elif mode in ["100755", "100644", "120000"]:
+            type_ = "blob"
+        print(f"{mode} {type_} {sha} {name}")
+
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     # print("Logs from your program will appear here!")
@@ -45,36 +76,10 @@ def main():
             sha = hashlib.sha1(header + content).hexdigest()
             print(sha)
 
-    elif command =='ls-tree':
-        if sys.argv[2] == '--name-only':
-            tree_sha = sys.argv[3]
-            ## tree blob data
-            with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
-                raw = zlib.decompress(f.read())
-                header, content = raw.split(b"\0", maxsplit=1)
-                content = content.decode("utf-8")
-                ## print file names
-                for line in content.splitlines():
-                    inter, sha = line.split("\0")
-                    mode, name = inter.split(" ")
-                    
-                    print(name) 
-        else:
-            tree_sha = sys.argv[2]
-            with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
-                raw = zlib.decompress(f.read())
-                header, content = raw.split(b"\0", maxsplit=1)
-                content = content.decode("utf-8")
-                ## print file names
-                for line in content.splitlines():
-                    inter, sha = line.split("\0")
-                    mode, name = inter.split(" ")
-                    type_ = "blob"
-                    if mode == "40000":
-                        type_ = "tree"
-                    elif mode in ["100755", "100644", "120000"]:
-                        type_ = "blob"
-                    print(mode + " " + type_ + " " + sha + " " + name)
+    elif command == 'ls-tree':
+        tree_sha = sys.argv[2]
+        content = read_tree(tree_sha)
+        print_tree_content(content)
     
     else:
         raise RuntimeError(f"Unknown command #{command}")
