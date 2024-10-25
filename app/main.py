@@ -30,7 +30,6 @@ def main():
             ## write object to .git/objects
             file_name = sys.argv[3]
             content = open(file_name, "rb").read()
-            content = content.encode()
             header = f"blob {len(content)}\0".encode()
             sha = zlib.crc32(header + content).to_bytes(20, byteorder="big").hex()
             os.makedirs(f".git/objects/{sha[:2]}", exist_ok=True)
@@ -41,7 +40,6 @@ def main():
             ##  prints a 40-character SHA hash to stdout
             file_name = sys.argv[3]
             content = open(file_name, "rb").read()
-            content = content.encode()
             header = f"blob {len(content)}\0".encode()
             sha = zlib.crc32(header + content).to_bytes(20, byteorder="big").hex()
             print(sha)
