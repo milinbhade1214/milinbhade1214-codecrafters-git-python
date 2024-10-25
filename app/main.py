@@ -3,6 +3,17 @@ import os
 import zlib
 import hashlib
 
+def write_object(parent: Path, ty: str, content: bytes) -> str:
+    content = ty.encode() + b" " + f"{len(content)}".encode() + b"\0" + content
+    hash = hashlib.sha1(content, usedforsecurity=False).hexdigest()
+    compressed_content = zlib.compress(content)
+    pre = hash[:2]
+    post = hash[2:]
+    p = parent / ".git" / "objects" / pre / post
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(compressed_content)
+    return hash
+
 
 def create_blob_entry(path, write=True):
     with open(path, "rb") as f:
@@ -131,7 +142,27 @@ def main():
         print(write_tree("./"))
 
     elif command == "commit-tree":
-        pass
+        print("Calling commit tree")
+        tree_sha = sys.argv[2]
+        if sys.argv[3] == "-p":
+            commit_sha = sys.argv[4]
+            message = sys.argv[6]
+        else:
+            message = sys.argv[4]
+        
+
+        contents = b"".join(
+            [
+                b"tree %b\n" % tree_sha.encode(),
+                b"parent %b\n" % commit_sha.encode(),
+                b"author ggzor <30713864+ggzor@users.noreply.github.com> 1714599041 -0600\n",
+                b"committer ggzor <30713864+ggzor@users.noreply.github.com> 1714599041 -0600\n\n",
+                message.encode(),
+                b"\n",
+            ]
+        )
+        hash = write_object(Path("."), "commit", contents)
+        print(hash)
 
     else:
         raise RuntimeError(f"Unknown command #{command}")
