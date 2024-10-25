@@ -16,7 +16,7 @@ def read_tree(tree_sha):
         header, content = raw.split(b"\0", maxsplit=1)
         return content
 
-def print_tree_content(content):
+def print_tree_content(content, options=""):
     index = 0
     while index < len(content):
         mode_end = content.find(b' ', index)
@@ -33,7 +33,10 @@ def print_tree_content(content):
             type_ = "tree"
         elif mode in ["100755", "100644", "120000"]:
             type_ = "blob"
-        print(f"{mode} {type_} {sha} {name}")
+        if options == "name-only:
+            print(f"{name}")
+        else:
+            print(f"{mode} {type_} {sha} {name}")
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -77,9 +80,14 @@ def main():
             print(sha)
 
     elif command == 'ls-tree':
-        tree_sha = sys.argv[2]
+        if sys.argv[2] == "--name-only":
+            options = "name-only"
+            tree_sha = sys.argv[3]
+        else:
+            options = "complete-view"
+            tree_sha = sys.argv[2]
         content = read_tree(tree_sha)
-        print_tree_content(content)
+        print_tree_content(content, options=options)
     
     else:
         raise RuntimeError(f"Unknown command #{command}")
