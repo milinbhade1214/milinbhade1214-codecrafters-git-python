@@ -2,6 +2,7 @@ import sys
 import os
 import zlib
 import hashlib
+from pathlib import Path
 
 def write_object(parent: Path, ty: str, content: bytes) -> str:
     content = ty.encode() + b" " + f"{len(content)}".encode() + b"\0" + content
