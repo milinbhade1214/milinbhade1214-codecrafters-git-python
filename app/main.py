@@ -25,6 +25,26 @@ def main():
                 header, content = raw.split(b"\0", maxsplit=1)
                 print(content.decode("utf-8"), end="")
             
+    elif command == "hash-object":
+        if sys.argv[2] == "-w":
+            ## write object to .git/objects
+            file_name = sys.argv[3]
+            content = open(file_name, "rb").read()
+            content = content.encode()
+            header = f"blob {len(content)}\0".encode()
+            sha = zlib.crc32(header + content).to_bytes(20, byteorder="big").hex()
+            os.makedirs(f".git/objects/{sha[:2]}", exist_ok=True)
+            with open(f".git/objects/{sha[:2]}/{sha[2:]}", "wb") as f:
+                f.write(zlib.compress(header + content))
+            print(sha)
+        else:
+            ##  prints a 40-character SHA hash to stdout
+            file_name = sys.argv[3]
+            content = open(file_name, "rb").read()
+            content = content.encode()
+            header = f"blob {len(content)}\0".encode()
+            sha = zlib.crc32(header + content).to_bytes(20, byteorder="big").hex()
+            print(sha)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
