@@ -89,6 +89,15 @@ def main():
         content = read_tree(tree_sha)
         print_tree_content(content, options=options)
     
+    elif command == 'write-tree':
+        # get all files and folders in the current directory
+        files = os.listdir()
+        tree_content = b""
+        print(files)
+        
+        
+        pass
+
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
