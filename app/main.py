@@ -20,7 +20,7 @@ def main():
     elif command =='cat-file':
         if sys.argv[2] == '-p':
             blob_sha = sys.argv[3]
-            with open(f".git/objects/{blob_sha[:2]/blob_sha[2:]}", "rb") as f:
+            with open(f".git/objects/{blob_sha[:2]}/{blob_sha[2:]}", "rb") as f:
                 raw = zlib.decompress(f.read())
                 header, content = raw.split(b"\0", maxsplit=1)
                 print(content.decode("utf-8"), end="")
