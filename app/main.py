@@ -75,17 +75,7 @@ def main():
                     elif mode in ["100755", "100644", "120000"]:
                         type_ = "blob"
                     print(mode + " " + type_ + " " + sha + " " + name)
-
-        with open(f".git/objects/{tree_sha[:2]}/{tree_sha[2:]}", "rb") as f:
-            raw = zlib.decompress(f.read())
-            header, content = raw.split(b"\0", maxsplit=1)
-            print(content.decode("utf-8"), end="")
-
-
-
-
-
-
+    
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
